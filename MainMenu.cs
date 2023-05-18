@@ -10,6 +10,8 @@ public class MainMenu : MonoBehaviour
     public CameraAnimationPlayer animPlayer;
     public ScrollRect scrollViewShop;
     public GameObject panelLeft;
+    public Camera[] cameras;
+    private bool inspectShip;
 
     void Start(){
         buttonNewRun.onClick.AddListener(() => TaskOnClick(buttonNewRun));
@@ -18,9 +20,13 @@ public class MainMenu : MonoBehaviour
         buttonBack.onClick.AddListener(() => TaskOnClick(buttonBack));
         buttonGameEnd.onClick.AddListener(() => TaskOnClick(buttonGameEnd));
         buttonResetGameProgress.onClick.AddListener(() => TaskOnClick(buttonResetGameProgress));
+        buttonInspectShip.onClick.AddListener(() => TaskOnClick(buttonInspectShip));
         buttonBack.gameObject.SetActive(false);
         buttonResetGameProgress.gameObject.SetActive(false);
         scrollViewShop.gameObject.SetActive(false);
+        PlayerPrefs.SetInt("inspectShip", 0);
+        cameras[1].gameObject.SetActive(false);
+        cameras[0].gameObject.SetActive(true);
     }
 
     void Update(){
@@ -28,6 +34,14 @@ public class MainMenu : MonoBehaviour
         textShield.text = "Shield: " + (PlayerPrefs.GetInt("Shield") == 1 ? "Activated":"Deactivated");
         textBooster.text = "Boost: " + (PlayerPrefs.GetInt("Booster") == 1 ? "Activated":"Deactivated");
         textLight.text = "Light: " + (PlayerPrefs.GetInt("Light") == 1 ? "Activated":"Deactivated");
+        if(inspectShip){
+            if (Input.GetKey(KeyCode.Escape)) {
+                enableMainMenu();
+                disableInspectShip();
+                PlayerPrefs.SetInt("inspectShip", 0);
+                inspectShip = false;
+            }
+        }
     }
 
     void TaskOnClick(Button buttonClicked){
@@ -59,6 +73,12 @@ public class MainMenu : MonoBehaviour
         else if(buttonClicked == buttonResetGameProgress){
             gameReset();
         }
+        else if(buttonClicked == buttonInspectShip){
+            disableMainMenu();
+            enableInspectShip();
+            inspectShip = true;
+            PlayerPrefs.SetInt("inspectShip", 1);
+        }
     }
 
     void newRun(){
@@ -78,6 +98,7 @@ public class MainMenu : MonoBehaviour
         buttonShop.gameObject.SetActive(false);
         buttonOptions.gameObject.SetActive(false);
         buttonGameEnd.gameObject.SetActive(false);
+        buttonInspectShip.gameObject.SetActive(false);
     }
 
     void enableMainMenu(){
@@ -85,8 +106,8 @@ public class MainMenu : MonoBehaviour
         buttonShop.gameObject.SetActive(true);
         buttonOptions.gameObject.SetActive(true);
         buttonBack.GetComponent<RectTransform>().anchoredPosition = new Vector2(41.54635f, 185.6707f);
-        buttonResetGameProgress.gameObject.SetActive(false);
         buttonGameEnd.gameObject.SetActive(true);
+        buttonInspectShip.gameObject.SetActive(true);
     }
  
     void enableSettings(){
@@ -118,5 +139,15 @@ public class MainMenu : MonoBehaviour
 
     void LoadGameScene(){
         SceneManager.LoadScene("gameRun");
+    }
+
+    void enableInspectShip(){
+        cameras[0].gameObject.SetActive(false);
+        cameras[1].gameObject.SetActive(true);
+    }
+
+    void disableInspectShip(){
+        cameras[1].gameObject.SetActive(false);
+        cameras[0].gameObject.SetActive(true);
     }
 }

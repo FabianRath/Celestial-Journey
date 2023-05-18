@@ -9,14 +9,10 @@ public class PlayerMovement : MonoBehaviour {
 
     private float rollAngle = 5f;
     private float rollBackDelay = 0.1f;
-    private bool isRollingLeft = false;
-    private bool isRollingRight = false;
     private float currentRollAngle = 0f;
 
     private float pitchAngle = 3f;
     private float pitchBackDelay = 0.1f;
-    private bool isPitchingUp = false;
-    private bool isPitchingDown = false;
     private float currentPitchAngle = 0f;
 
     void Start() {

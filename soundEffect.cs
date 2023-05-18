@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class soundEffect : MonoBehaviour
+public class SoundEffect : MonoBehaviour
 {
     public AudioSource mySounds;
     public AudioClip hoverSound;
