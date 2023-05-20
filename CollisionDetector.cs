@@ -23,7 +23,7 @@ public class CollisionDetector : MonoBehaviour
             spaceshipRigidbody.isKinematic = true;
             boosterSwitch();
             PlayerPrefs.SetInt("Booster", 0);
-            Invoke("boosterSwitch", 5f);
+            Invoke("boosterSwitch", 10f);
         }
         if(PlayerPrefs.GetInt("Shield") != 0){
             PlayerPrefs.SetInt("Shield", 0);

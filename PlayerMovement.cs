@@ -15,6 +15,10 @@ public class PlayerMovement : MonoBehaviour {
     private float pitchBackDelay = 0.1f;
     private float currentPitchAngle = 0f;
 
+    float countdownTime = 10f;
+
+    public ParticleSystem particleSystem;
+
     void Start() {
         currentSpeed = baseSpeed;
         if (PlayerPrefs.GetInt("Booster") != 0) {
@@ -23,16 +27,17 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     IEnumerator ActivateRocketBooster() {
+        particleSystem.Play();
         currentSpeed = 100f;
-        float countdownTime = 5f;
-        StartCoroutine(DisplayCountdown(countdownTime));
+        StartCoroutine(DisplayCountdown());
         StartCoroutine(boosterShake());
         yield return new WaitForSeconds(countdownTime);
         currentSpeed = baseSpeed;
         PlayerPrefs.SetInt("Booster", 0);
+        particleSystem.Stop();
     }
 
-    IEnumerator DisplayCountdown(float countdownTime) {
+    IEnumerator DisplayCountdown() {
         float remainingTime = countdownTime;
         while (remainingTime > 0) {
             PlayerPrefs.SetInt("BoosterCountdown", Mathf.RoundToInt(remainingTime));
