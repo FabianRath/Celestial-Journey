@@ -38,7 +38,6 @@ public class CollisionDetector : MonoBehaviour
     }
 
     void OnTriggerEnter(Collider other){
-        
         switch (other.gameObject.tag){
             case "Ring":
                 StartCoroutine(playRingSound());

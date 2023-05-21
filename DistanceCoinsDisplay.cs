@@ -1,17 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DistanceCoinsDisplay : MonoBehaviour
-{
+public class DistanceCoinsDisplay : MonoBehaviour{
     public Text distanceTextfield, coinTextfield, boosterTextfield, shieldTextfield;
 
-    private void Start()
-    {
+    private void Start(){
         int initalShieldDisplay = PlayerPrefs.GetInt("Shield") == 1 ? 5 : 0;
         PlayerPrefs.SetInt("ShieldCountdown", initalShieldDisplay);
     }
 
-    void Update(){
+    void FixedUpdate(){
         float z = transform.position.z;
         int roundedZ = Mathf.RoundToInt(z);
 

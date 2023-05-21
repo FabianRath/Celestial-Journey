@@ -3,14 +3,14 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 
-public class MainMenu : MonoBehaviour
-{
+public class MainMenu : MonoBehaviour{
     public Button buttonNewRun, buttonShop, buttonOptions, buttonBack, buttonResetGameProgress, buttonGameEnd, buttonInspectShip;
     public TextMeshProUGUI totalCoinsText, textShield, textBooster, textLight;
     public CameraAnimationPlayer animPlayer;
     public ScrollRect scrollViewShop;
     public GameObject panelLeft;
     public Camera[] cameras;
+    public GameObject playerModel;
     private bool inspectShip;
 
     void Start(){
@@ -27,9 +27,10 @@ public class MainMenu : MonoBehaviour
         PlayerPrefs.SetInt("inspectShip", 0);
         cameras[1].gameObject.SetActive(false);
         cameras[0].gameObject.SetActive(true);
+        playerModel.gameObject.SetActive(false);
     }
 
-    void Update(){
+    void FixedUpdate(){
         totalCoinsText.text = "Coins: " + (PlayerPrefs.GetInt("totalCoins")).ToString();
         textShield.text = "Shield: " + (PlayerPrefs.GetInt("Shield") == 1 ? "Activated":"Deactivated");
         textBooster.text = "Boost: " + (PlayerPrefs.GetInt("Booster") == 1 ? "Activated":"Deactivated");
@@ -48,32 +49,26 @@ public class MainMenu : MonoBehaviour
         if(buttonClicked == buttonNewRun){
             disableMainMenu();
             newRun();
-        }
-        else if(buttonClicked == buttonShop){
+        }else if(buttonClicked == buttonShop){
             disableMainMenu();
             enableShop();
-        }
-        else if(buttonClicked == buttonOptions){
+        }else if(buttonClicked == buttonOptions){
             disableMainMenu();
             enableSettings();
-        }
-        else if(buttonClicked == buttonBack){
+        }else if(buttonClicked == buttonBack){
             buttonBack.gameObject.SetActive(false);
             enableMainMenu();
             disableSettings();
             disableShop();
-        }
-        else if(buttonClicked == buttonGameEnd){
+        }else if(buttonClicked == buttonGameEnd){
             #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
             #else
             Application.Quit();
             #endif
-        }
-        else if(buttonClicked == buttonResetGameProgress){
+        }else if(buttonClicked == buttonResetGameProgress){
             gameReset();
-        }
-        else if(buttonClicked == buttonInspectShip){
+        }else if(buttonClicked == buttonInspectShip){
             disableMainMenu();
             enableInspectShip();
             inspectShip = true;
@@ -144,10 +139,12 @@ public class MainMenu : MonoBehaviour
     void enableInspectShip(){
         cameras[0].gameObject.SetActive(false);
         cameras[1].gameObject.SetActive(true);
+        playerModel.gameObject.SetActive(true);
     }
 
     void disableInspectShip(){
         cameras[1].gameObject.SetActive(false);
         cameras[0].gameObject.SetActive(true);
+        playerModel.gameObject.SetActive(false);
     }
 }
