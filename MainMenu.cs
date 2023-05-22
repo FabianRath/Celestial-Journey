@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using TMPro;
 
 public class MainMenu : MonoBehaviour{
-    public Button buttonNewRun, buttonShop, buttonOptions, buttonBack, buttonResetGameProgress, buttonGameEnd, buttonInspectShip;
+    public Button buttonNewRun, buttonShop, buttonOptions, buttonBack, buttonResetGameProgress, buttonGameEnd, buttonInspectShip, buttonMuteBGM;
     public TextMeshProUGUI totalCoinsText, textShield, textBooster, textLight;
     public CameraAnimationPlayer animPlayer;
     public ScrollRect scrollViewShop;
@@ -20,9 +20,11 @@ public class MainMenu : MonoBehaviour{
         buttonBack.onClick.AddListener(() => TaskOnClick(buttonBack));
         buttonGameEnd.onClick.AddListener(() => TaskOnClick(buttonGameEnd));
         buttonResetGameProgress.onClick.AddListener(() => TaskOnClick(buttonResetGameProgress));
+        buttonMuteBGM.onClick.AddListener(() => TaskOnClick(buttonMuteBGM));
         buttonInspectShip.onClick.AddListener(() => TaskOnClick(buttonInspectShip));
         buttonBack.gameObject.SetActive(false);
         buttonResetGameProgress.gameObject.SetActive(false);
+        buttonMuteBGM.gameObject.SetActive(false);
         scrollViewShop.gameObject.SetActive(false);
         PlayerPrefs.SetInt("inspectShip", 0);
         cameras[1].gameObject.SetActive(false);
@@ -68,6 +70,8 @@ public class MainMenu : MonoBehaviour{
             #endif
         }else if(buttonClicked == buttonResetGameProgress){
             gameReset();
+        }else if(buttonClicked == buttonMuteBGM){
+            BGM.instance.PauseMusic();
         }else if(buttonClicked == buttonInspectShip){
             disableMainMenu();
             enableInspectShip();
@@ -108,11 +112,13 @@ public class MainMenu : MonoBehaviour{
     void enableSettings(){
         buttonOptions.gameObject.SetActive(false);
         buttonResetGameProgress.gameObject.SetActive(true);
+        buttonMuteBGM.gameObject.SetActive(true);
         buttonBack.gameObject.SetActive(true);
     }
 
     void disableSettings(){
         buttonResetGameProgress.gameObject.SetActive(false);
+        buttonMuteBGM.gameObject.SetActive(false);
         buttonBack.gameObject.SetActive(false);
     }
 
