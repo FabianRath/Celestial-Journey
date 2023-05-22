@@ -28,7 +28,7 @@ public class PlayerMovement : MonoBehaviour {
 
     IEnumerator ActivateRocketBooster() {
         particleSystem.Play();
-        currentSpeed = 100f;
+        currentSpeed = 150;
         StartCoroutine(DisplayCountdown());
         StartCoroutine(boosterShake());
         yield return new WaitForSeconds(countdownTime);

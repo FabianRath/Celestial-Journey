@@ -57,7 +57,7 @@ public class CollisionDetector : MonoBehaviour
                             PlayerPrefs.SetInt("Shield", 0);
                             shieldActive = false;
                             shieldRunning = true;
-                            StartCoroutine(surviveCrashWithRockShield());
+                            StartCoroutine(surviveCrashWithRockShield(false));
                         }
                         else{
                             loadDeathscreen();
@@ -75,13 +75,15 @@ public class CollisionDetector : MonoBehaviour
         if(boosterActive){
             spaceshipRigidbody.isKinematic = false;
             boosterActive = false;
+            shieldRunning = true;
+            StartCoroutine(surviveCrashWithRockShield(true));
         } else if(!boosterActive){
             spaceshipRigidbody.isKinematic = true;
             boosterActive = true;
         }
     }
 
-    private IEnumerator surviveCrashWithRockShield(){
+    private IEnumerator surviveCrashWithRockShield(bool booster){
         spaceshipRigidbody.isKinematic = true;
         spaceship = GameObject.Find("Transport Shuttle_fbx");
         spaceship.transform.localPosition = new Vector3(0f, -2.33f, -1.817f);
@@ -95,6 +97,9 @@ public class CollisionDetector : MonoBehaviour
         }
         shieldRunning = false;
         spaceshipRigidbody.isKinematic = false;
+        if(booster){
+            PlayerPrefs.SetInt("ShieldCountdown", 5);
+        }
     }
 
     IEnumerator playRingSound(){
