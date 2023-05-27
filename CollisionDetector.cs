@@ -32,9 +32,9 @@ public class CollisionDetector : MonoBehaviour
     }
 
     private void FixedUpdate(){
-        if(transform.position.x < -50f || transform.position.x > 50f || transform.position.y < -0f || transform.position.y > 30f){
+        /*if(transform.position.x < -50f || transform.position.x > 50f || transform.position.y < -0f || transform.position.y > 30f){
             loadDeathscreen();
-        }
+        }*/
     }
 
     void OnTriggerEnter(Collider other){
