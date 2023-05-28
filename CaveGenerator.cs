@@ -1,3 +1,4 @@
+
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -48,8 +49,6 @@ public class CaveGenerator : MonoBehaviour{
         entranceTopLeftY = (sizeY/4) + (sizeY/8);
         entranceTopLeftZ = (sizeZ/4) + (sizeZ/8);
 
-        spawnPos = spawnPosition.position;
-
         foreach (GameObject obj in objectsToDelete){
             chunksList.Add(obj);
         }
@@ -61,13 +60,9 @@ public class CaveGenerator : MonoBehaviour{
     IEnumerator GenerateChunk(){
         int counter = 0;
         while(true){
-            if(spawnPos.z >= spawnPosChange + 100 || counter == 0 || counter == 1){
+            spawnPos = spawnPosition.position;
+            if(spawnPos.z >= spawnPosChange + 150 || counter == 0){
                 counter++;
-                if(counter == 1){
-                    fillPercentage = 55;
-                }else{
-                    fillPercentage = 62;
-                }
                 
                 exitTopLeftY = Random.Range(10, 38);
                 exitTopLeftZ = Random.Range(10, 38);
@@ -78,6 +73,7 @@ public class CaveGenerator : MonoBehaviour{
                 entranceTopLeftZ = exitTopLeftZ;
 
                 posZ += 250;
+                spawnPosChange = spawnPos.z;
             }
             yield return null;
         }
@@ -200,148 +196,156 @@ public class CaveGenerator : MonoBehaviour{
         for (int cx = 0; cx < (sizeX / 8); cx++){
             for (int cy = 0; cy < sizeY / 8; cy++){
                 for (int cz = 0; cz < sizeZ / 8; cz++){
-                        GameObject chunk = new GameObject("Chunk " + cx + "." + cy + "." + cz); // chunk child
+                    GameObject chunk = new GameObject("Chunk " + cx + "." + cy + "." + cz); // chunk child
+                    chunk.transform.parent = chunks.transform;
 
-                        chunk.transform.parent = chunks.transform;
+                    if (cy == 0 || cy == sizeY / 8 - 1 || cz == 0 || cz == sizeZ / 8 - 1){
+                        chunk.tag = "Boundary";
+                    }
+                    else{
+                        chunk.tag = "Rock";
+                    }
 
-                        // adds required components
-                        chunk.AddComponent<MeshFilter>();
-                        chunk.AddComponent<MeshRenderer>();
-                        chunk.AddComponent<MeshCollider>();
+                    // adds required components
+                    chunk.AddComponent<MeshFilter>();
+                    chunk.AddComponent<MeshRenderer>();
+                    MeshCollider chunkCollider = chunk.AddComponent<MeshCollider>();
+                    chunkCollider.convex = true;
+                    chunkCollider.isTrigger = true;
 
-                        Mesh mesh = new Mesh();
+                    Mesh mesh = new Mesh();
 
-                        List<Vector3> vertices = new List<Vector3>();   // stores chunk vertices
-                        List<int> triangles = new List<int>();          // stores chunk faces
+                    List<Vector3> vertices = new List<Vector3>();   // stores chunk vertices
+                    List<int> triangles = new List<int>();          // stores chunk faces
 
-                        int i = 0;  // last vertice added
+                    int i = 0;  // last vertice added
 
-                        // loops for chunk size
-                        for (int x = cx * 8; x < cx * 8 + 8; x++){
-                            for (int y = cy * 8; y < cy * 8 + 8; y++){
-                                for (int z = cz * 8; z < cz * 8 + 8; z++){
-                                    // only creates mesh where blocks exist
-                                    if (map[x, y, z] == 1){
-                                        // checks if x face is drawn
-                                        if (x - 1 >= 0){
-                                            if (map[x - 1, y, z] == 0){
-                                                vertices.Add(new Vector3(x, y, z));             // 0
-                                                vertices.Add(new Vector3(x, y + 1, z));         // 1
-                                                vertices.Add(new Vector3(x, y + 1, z + 1));     // 2
-                                                vertices.Add(new Vector3(x, y, z + 1));         // 3
+                    // loops for chunk size
+                    for (int x = cx * 8; x < cx * 8 + 8; x++){
+                        for (int y = cy * 8; y < cy * 8 + 8; y++){
+                            for (int z = cz * 8; z < cz * 8 + 8; z++){
+                                // only creates mesh where blocks exist
+                                if (map[x, y, z] == 1){
+                                    // checks if x face is drawn
+                                    if (x - 1 >= 0){
+                                        if (map[x - 1, y, z] == 0){
+                                            vertices.Add(new Vector3(x, y, z));             // 0
+                                            vertices.Add(new Vector3(x, y + 1, z));         // 1
+                                            vertices.Add(new Vector3(x, y + 1, z + 1));     // 2
+                                            vertices.Add(new Vector3(x, y, z + 1));         // 3
 
-                                                triangles.Add(i + 2);   // -x
-                                                triangles.Add(i + 1);
-                                                triangles.Add(i);
+                                            triangles.Add(i + 2);   // -x
+                                            triangles.Add(i + 1);
+                                            triangles.Add(i);
 
-                                                triangles.Add(i);       // -x
-                                                triangles.Add(i + 3);
-                                                triangles.Add(i + 2);
+                                            triangles.Add(i);       // -x
+                                            triangles.Add(i + 3);
+                                            triangles.Add(i + 2);
 
-                                                i += 4; // new vertice index
-                                            }
+                                            i += 4; // new vertice index
                                         }
+                                    }
 
-                                        if (x + 1 < sizeX){
-                                            if (map[x + 1, y, z] == 0){
-                                                vertices.Add(new Vector3(x + 1, y, z + 1));     // 0
-                                                vertices.Add(new Vector3(x + 1, y + 1, z + 1)); // 1
-                                                vertices.Add(new Vector3(x + 1, y + 1, z));     // 2
-                                                vertices.Add(new Vector3(x + 1, y, z));         // 3
+                                    if (x + 1 < sizeX){
+                                        if (map[x + 1, y, z] == 0){
+                                            vertices.Add(new Vector3(x + 1, y, z + 1));     // 0
+                                            vertices.Add(new Vector3(x + 1, y + 1, z + 1)); // 1
+                                            vertices.Add(new Vector3(x + 1, y + 1, z));     // 2
+                                            vertices.Add(new Vector3(x + 1, y, z));         // 3
 
-                                                triangles.Add(i + 3);   // x
-                                                triangles.Add(i + 2);
-                                                triangles.Add(i + 1);
+                                            triangles.Add(i + 3);   // x
+                                            triangles.Add(i + 2);
+                                            triangles.Add(i + 1);
 
-                                                triangles.Add(i + 1);   // x
-                                                triangles.Add(i);
-                                                triangles.Add(i + 3);
+                                            triangles.Add(i + 1);   // x
+                                            triangles.Add(i);
+                                            triangles.Add(i + 3);
 
-                                                i += 4; // new vertice index
-                                            }
+                                            i += 4; // new vertice index
                                         }
+                                    }
 
-                                        // checks if y face is drawn
-                                        if (y - 1 >= 0){
-                                            if (map[x, y - 1, z] == 0){
-                                                vertices.Add(new Vector3(x, y, z));             // 0
-                                                vertices.Add(new Vector3(x, y, z + 1));         // 1
-                                                vertices.Add(new Vector3(x + 1, y, z + 1));     // 2
-                                                vertices.Add(new Vector3(x + 1, y, z));         // 3
+                                    // checks if y face is drawn
+                                    if (y - 1 >= 0){
+                                        if (map[x, y - 1, z] == 0){
+                                            vertices.Add(new Vector3(x, y, z));             // 0
+                                            vertices.Add(new Vector3(x, y, z + 1));         // 1
+                                            vertices.Add(new Vector3(x + 1, y, z + 1));     // 2
+                                            vertices.Add(new Vector3(x + 1, y, z));         // 3
 
-                                                triangles.Add(i + 1);   // -y
-                                                triangles.Add(i);
-                                                triangles.Add(i + 3);
+                                            triangles.Add(i + 1);   // -y
+                                            triangles.Add(i);
+                                            triangles.Add(i + 3);
 
-                                                triangles.Add(i + 3);   // -y
-                                                triangles.Add(i + 2);
-                                                triangles.Add(i + 1);
+                                            triangles.Add(i + 3);   // -y
+                                            triangles.Add(i + 2);
+                                            triangles.Add(i + 1);
 
-                                                i += 4; // new vertice index
-                                            }
+                                            i += 4; // new vertice index
                                         }
+                                    }
 
-                                        if (y + 1 < sizeY){
-                                            if (map[x, y + 1, z] == 0){
-                                                vertices.Add(new Vector3(x, y + 1, z));         // 0
-                                                vertices.Add(new Vector3(x, y + 1, z + 1));     // 1
-                                                vertices.Add(new Vector3(x + 1, y + 1, z + 1)); // 2
-                                                vertices.Add(new Vector3(x + 1, y + 1, z));     // 3
+                                    if (y + 1 < sizeY){
+                                        if (map[x, y + 1, z] == 0){
+                                            vertices.Add(new Vector3(x, y + 1, z));         // 0
+                                            vertices.Add(new Vector3(x, y + 1, z + 1));     // 1
+                                            vertices.Add(new Vector3(x + 1, y + 1, z + 1)); // 2
+                                            vertices.Add(new Vector3(x + 1, y + 1, z));     // 3
 
-                                                triangles.Add(i + 1);   // y
-                                                triangles.Add(i + 2);
-                                                triangles.Add(i + 3);
+                                            triangles.Add(i + 1);   // y
+                                            triangles.Add(i + 2);
+                                            triangles.Add(i + 3);
 
-                                                triangles.Add(i + 3);   // y
-                                                triangles.Add(i);
-                                                triangles.Add(i + 1);
+                                            triangles.Add(i + 3);   // y
+                                            triangles.Add(i);
+                                            triangles.Add(i + 1);
 
-                                                i += 4; // new vertice index
-                                            }
+                                            i += 4; // new vertice index
                                         }
+                                    }
 
-                                        // checks if z face is drawn
-                                        if (z + 1 < sizeZ){
-                                            if (map[x, y, z + 1] == 0){
-                                                vertices.Add(new Vector3(x, y + 1, z + 1));     // 0
-                                                vertices.Add(new Vector3(x, y, z + 1));         // 1
-                                                vertices.Add(new Vector3(x + 1, y, z + 1));     // 2
-                                                vertices.Add(new Vector3(x + 1, y + 1, z + 1)); // 3
+                                    // checks if z face is drawn
+                                    if (z + 1 < sizeZ){
+                                        if (map[x, y, z + 1] == 0){
+                                            vertices.Add(new Vector3(x, y + 1, z + 1));     // 0
+                                            vertices.Add(new Vector3(x, y, z + 1));         // 1
+                                            vertices.Add(new Vector3(x + 1, y, z + 1));     // 2
+                                            vertices.Add(new Vector3(x + 1, y + 1, z + 1)); // 3
 
-                                                triangles.Add(i);   // z
-                                                triangles.Add(i + 1);
-                                                triangles.Add(i + 2);
+                                            triangles.Add(i);   // z
+                                            triangles.Add(i + 1);
+                                            triangles.Add(i + 2);
 
-                                                triangles.Add(i + 2);   // z
-                                                triangles.Add(i + 3);
-                                                triangles.Add(i);
+                                            triangles.Add(i + 2);   // z
+                                            triangles.Add(i + 3);
+                                            triangles.Add(i);
 
-                                                i += 4; // new vertice index
-                                            }
+                                            i += 4; // new vertice index
                                         }
+                                    }
 
-                                        if (z - 1 >= 0){
-                                            if (map[x, y, z - 1] == 0){
-                                                vertices.Add(new Vector3(x, y, z));             // 0
-                                                vertices.Add(new Vector3(x, y + 1, z));         // 1
-                                                vertices.Add(new Vector3(x + 1, y + 1, z));     // 2
-                                                vertices.Add(new Vector3(x + 1, y, z));         // 3
+                                    if (z - 1 >= 0){
+                                        if (map[x, y, z - 1] == 0){
+                                            vertices.Add(new Vector3(x, y, z));             // 0
+                                            vertices.Add(new Vector3(x, y + 1, z));         // 1
+                                            vertices.Add(new Vector3(x + 1, y + 1, z));     // 2
+                                            vertices.Add(new Vector3(x + 1, y, z));         // 3
 
-                                                triangles.Add(i + 3);   // -z
-                                                triangles.Add(i);
-                                                triangles.Add(i + 1);
+                                            triangles.Add(i + 3);   // -z
+                                            triangles.Add(i);
+                                            triangles.Add(i + 1);
 
-                                                triangles.Add(i + 1);   // -z
-                                                triangles.Add(i + 2);
-                                                triangles.Add(i + 3);
+                                            triangles.Add(i + 1);   // -z
+                                            triangles.Add(i + 2);
+                                            triangles.Add(i + 3);
 
-                                                i += 4; // new vertice index
-                                            }
+                                            i += 4; // new vertice index
                                         }
                                     }
                                 }
                             }
                         }
+                    }
                     // finalizes mesh
                     mesh.Clear();
 
@@ -354,8 +358,7 @@ public class CaveGenerator : MonoBehaviour{
                     chunk.GetComponent<MeshFilter>().sharedMesh = mesh;
                     chunk.GetComponent<Renderer>().material = mat;
                     chunk.GetComponent<MeshCollider>().sharedMesh = mesh;
-                    this.chunksList.Add(chunks);
-                    }
+                }
                 yield return null;
             }
         }
@@ -364,14 +367,17 @@ public class CaveGenerator : MonoBehaviour{
         chunksTransform.localScale = new Vector3(4, 2, 2);
 
         chunksTransform.position = new Vector3(posX, posY, posZ);
+
+        chunksList.Add(chunks);
     }
 
     IEnumerator DeleteChunks(){
         while(true){
-            List<GameObject> chunksDelete = chunksList.Where(obj => obj.transform.position.z < spawnPosition.position.z-100).ToList();
+            List<GameObject> chunksDelete = chunksList.Where(obj => obj.transform.position.z < spawnPosition.position.z - 300).ToList();
+
             foreach (GameObject obj in chunksDelete){
-                chunksList.Remove(obj);
                 Destroy(obj);
+                chunksList.Remove(obj);
             }
             yield return null;
         }
