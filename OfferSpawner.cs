@@ -4,8 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class OfferSpawner : MonoBehaviour
-{
+public class OfferSpawner : MonoBehaviour{
     
     public GameObject offer;
     private ShopItem[] shopItems = {
@@ -15,13 +14,7 @@ public class OfferSpawner : MonoBehaviour
     private List<Button> itemButtonList = new List<Button>();
     private bool loaded = false;
 
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
+    void Update(){
         if(PlayerPrefs.GetInt("shop")==1){
             if(!loaded){
                 spawn();

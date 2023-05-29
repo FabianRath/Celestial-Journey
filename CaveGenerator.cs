@@ -39,7 +39,7 @@ public class CaveGenerator : MonoBehaviour{
     private int exitTopLeftY;
     private int exitTopLeftZ;
 
-    private float spawnPosChange = 0;
+    private int counter = 1;
 
     private void Awake(){
         sizeX = mapSizeX * 8;
@@ -58,12 +58,9 @@ public class CaveGenerator : MonoBehaviour{
     }
 
     IEnumerator GenerateChunk(){
-        int counter = 0;
         while(true){
             spawnPos = spawnPosition.position;
-            if(spawnPos.z >= spawnPosChange + 150 || counter == 0){
-                counter++;
-                
+            if(chunksList.Count <= 3){
                 exitTopLeftY = Random.Range(10, 38);
                 exitTopLeftZ = Random.Range(10, 38);
 
@@ -73,7 +70,12 @@ public class CaveGenerator : MonoBehaviour{
                 entranceTopLeftZ = exitTopLeftZ;
 
                 posZ += 250;
-                spawnPosChange = spawnPos.z;
+                
+                //Wait for ship to fly past spawn zone
+                if(counter == 1){
+                    yield return new WaitForSeconds(8);
+                }
+                counter++;
             }
             yield return null;
         }
@@ -146,6 +148,9 @@ public class CaveGenerator : MonoBehaviour{
                         map[x, y, z] = filterMap[x, y, z];
                     }
                 }
+            }
+            if(counter != 1){
+                    yield return null;
             }
         }
 
@@ -359,7 +364,9 @@ public class CaveGenerator : MonoBehaviour{
                     chunk.GetComponent<Renderer>().material = mat;
                     chunk.GetComponent<MeshCollider>().sharedMesh = mesh;
                 }
-                yield return null;
+                if(counter != 1){
+                    yield return null;
+                }
             }
         }
         chunksTransform.rotation = Quaternion.Euler(0, 90, 0);
