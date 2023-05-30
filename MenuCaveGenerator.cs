@@ -122,10 +122,6 @@ public class MenuCaveGenerator : MonoBehaviour{
                 }
             }
         }
-
-        // logs the volume of the final cave
-        Debug.Log(volume);
-
         BuildMap();
     }
 
