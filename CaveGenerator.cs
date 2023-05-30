@@ -73,7 +73,6 @@ public class CaveGenerator : MonoBehaviour{
                 //Wait for ship to fly past spawn zone
                 if(counter == 1){
                     while(spawnPosition.position.z < 70f){
-                        Debug.Log(spawnPosition.position.z);
                         yield return null;
                     }
                 }
@@ -83,14 +82,16 @@ public class CaveGenerator : MonoBehaviour{
         }
     }
 
-    private IEnumerator GenerateMap(){
+   private IEnumerator GenerateMap(){
         map = new int[sizeX, sizeY, sizeZ];
 
-        // Generate entrance and exit holes
+
+        int[,] entranceExit = generateEntranceExit();
+
         for (int y = 0; y < sizeY/4; y++){
             for (int z = 0; z < sizeZ/4; z++){
-                map[0, y + exitTopLeftY, z + exitTopLeftZ] = 2;
-                map[sizeX - 1, y + entranceTopLeftY, z + entranceTopLeftZ] = 2;
+                map[0, y + exitTopLeftY, z + exitTopLeftZ] = entranceExit[y, z];
+                map[sizeX - 1, y + entranceTopLeftY, z + entranceTopLeftZ] = entranceExit[y, z];
             }
         }
 
@@ -431,5 +432,50 @@ public class CaveGenerator : MonoBehaviour{
 
         // returns the volume of the room filled
         return volume;
+    }
+
+    private int[,] generateEntranceExit(){
+        int[,] array = new int[sizeY/4, sizeZ/4];
+
+        int centerX = 8;
+        int centerY = 8;
+        int radius = 7;
+
+        CreateCircle(array, centerX, centerY, radius);
+
+        return array;
+    }
+
+    static void CreateCircle(int[,] array, int centerX, int centerY, int radius){
+        int x = radius;
+        int y = 0;
+        int decisionOver2 = 1 - x;
+
+        while (y <= x){
+            for (int i = centerX - x; i <= centerX + x; i++){
+                SetPixel(array, i, centerY + y);
+                SetPixel(array, i, centerY - y);
+            }
+
+            for (int i = centerX - y; i <= centerX + y; i++){
+                SetPixel(array, i, centerY + x);
+                SetPixel(array, i, centerY - x);
+            }
+
+            y++;
+            if (decisionOver2 <= 0){
+                decisionOver2 += 2 * y + 1;
+            }
+            else{
+                x--;
+                decisionOver2 += 2 * (y - x) + 1;
+            }
+        }
+    }
+
+    static void SetPixel(int[,] array, int x, int y){
+        if (x >= 0 && x < array.GetLength(0) && y >= 0 && y < array.GetLength(1)){
+            array[x, y] = 2;
+        }
     }
 }
