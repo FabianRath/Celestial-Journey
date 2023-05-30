@@ -1,135 +1,70 @@
-
-using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
 
-public class CaveGenerator : MonoBehaviour{
-    public Transform spawnPosition; 
+public class MenuCaveGenerator : MonoBehaviour{
+    private int mapSize = 8;
 
-    public List<GameObject> objectsToDelete;
+    private int fillPercentage = 59;
 
-    Vector3 spawnPos;
+    private int filtering = 12;
 
-    private int mapSizeX = 8;
-    private int mapSizeY = 8;
-    private int mapSizeZ = 8;
-
-    private int fillPercentage = 62;
-
-    private int filtering = 11;
-
-    public Material mat;
-
-    private int sizeX;
-    private int sizeY;
-    private int sizeZ;
+    private int size;
 
     private int[,,] map;
 
-    private List<GameObject> chunksList = new List<GameObject>(); 
-
-    private int posX = -65;
-    private int posY = -55;
-    private int posZ = 260;
-
-    private int entranceTopLeftY;
-    private int entranceTopLeftZ;
-
-    private int exitTopLeftY;
-    private int exitTopLeftZ;
-
-    private int counter = 1;
-
+    public Material mat;
+    
     private void Awake(){
-        sizeX = mapSizeX * 8;
-        sizeY = mapSizeY * 8;
-        sizeZ = mapSizeZ * 8;
+        size = mapSize * 8;
 
-        entranceTopLeftY = (sizeY/4) + (sizeY/8);
-        entranceTopLeftZ = (sizeZ/4) + (sizeZ/8);
-
-        foreach (GameObject obj in objectsToDelete){
-            chunksList.Add(obj);
-        }
-
-        StartCoroutine(GenerateChunk());
-        StartCoroutine(DeleteChunks());
+        GenerateMap();
     }
 
-    IEnumerator GenerateChunk(){
-        while(true){
-            if(chunksList.Count <= 3){
-                exitTopLeftY = Random.Range(10, 38);
-                exitTopLeftZ = Random.Range(10, 38);
+    private void GenerateMap(){
+        map = new int[size, size, size];
 
-                yield return StartCoroutine(GenerateMap());
-
-                entranceTopLeftY = exitTopLeftY;
-                entranceTopLeftZ = exitTopLeftZ;
-
-                posZ += 250;
-                
-                //Wait for ship to fly past spawn zone
-                if(counter == 1){
-                    while(spawnPosition.position.z < 70f){
-                        Debug.Log(spawnPosition.position.z);
-                        yield return null;
+        // initialize map
+        for (int x = 0; x < size; x++){
+            for (int y = 0; y < size; y++){
+                for (int z = 0; z < size; z++){
+                    if (x == 0 || x == size - 1){
+                        map[x, y, z] = 1;
+                    }
+                    else if (y == 0 || y == size - 1){
+                        map[x, y, z] = 1;
+                    }
+                    else if (z == 0 || z == size - 1){
+                        map[x, y, z] = 1;
+                    }
+                    else{
+                        map[x, y, z] = Random.Range(0, 100) < fillPercentage ? 1 : 0;   // random fill (1 or 0)
                     }
                 }
-                counter++;
-            }
-            yield return null;
-        }
-    }
-
-    private IEnumerator GenerateMap(){
-        map = new int[sizeX, sizeY, sizeZ];
-
-        // Generate entrance and exit holes
-        for (int y = 0; y < sizeY/4; y++){
-            for (int z = 0; z < sizeZ/4; z++){
-                map[0, y + exitTopLeftY, z + exitTopLeftZ] = 2;
-                map[sizeX - 1, y + entranceTopLeftY, z + entranceTopLeftZ] = 2;
             }
         }
 
-        // Initialize map
-        for (int x = 0; x < sizeX; x++){
-            for (int y = 0; y < sizeY; y++){
-                for (int z = 0; z < sizeZ; z++){
-                    if (map[x, y, z] == 0) //keeping entrance and exit holes open
-                    {
-                        if (x == 0 || x == sizeX - 1 || y == 0 || y == sizeY - 1 || z == 0 || z == sizeZ - 1){
-                            map[x, y, z] = 1; // Edges to solid
-                        }
-                        else{
-                            map[x, y, z] = Random.Range(0, 100) < fillPercentage ? 1 : 0; // Random fill (1 or 0)
-                        }
-                    }
-                }
-            }    
-        }
+        // noise filter map
+        int[,,] filterMap = new int[size, size, size];
 
-        int[,,] filterMap = new int[sizeX, sizeY, sizeZ];
-        for (int x = 0; x < sizeX; x++){
-            for (int y = 0; y < sizeY; y++){
-                for (int z = 0; z < sizeZ; z++){
+        // create map copy
+        for (int x = 0; x < size; x++){
+            for (int y = 0; y < size; y++){
+                for (int z = 0; z < size; z++){
                     filterMap[x, y, z] = map[x, y, z];
                 }
             }
         }
 
+        // filter noise
         for (int i = 0; i < filtering; i++){
-            for (int x = 1; x < sizeX - 1; x++){
-                for (int y = 1; y < sizeY - 1; y++){
-                    for (int z = 1; z < sizeZ - 1; z++){
+            for (int x = 1; x < size - 1; x++){
+                for (int y = 1; y < size - 1; y++){
+                    for (int z = 1; z < size - 1; z++){
                         int count = 0;
-
                         for (int xn = -1; xn < 2; xn++){
                             for (int yn = -1; yn < 2; yn++){
                                 for (int zn = -1; zn < 2; zn++){
-                                    if (xn == 0 && yn == 0 && zn == 0){
+                                    if ((xn == 0 && yn == 0) && zn == 0){
                                         continue;
                                     }
                                     else{
@@ -144,41 +79,40 @@ public class CaveGenerator : MonoBehaviour{
                 }
             }
 
-            for (int x = 0; x < sizeX; x++){
-                for (int y = 0; y < sizeY; y++){
-                    for (int z = 0; z < sizeZ; z++){
+            for (int x = 0; x < size; x++){
+                for (int y = 0; y < size; y++){
+                    for (int z = 0; z < size; z++){
                         map[x, y, z] = filterMap[x, y, z];
                     }
                 }
             }
-            if(counter != 1){
-                    yield return null;
-            }
         }
 
-        int cur = 2;
-        int max = 2;
-        int volume = 0;
+        int cur = 2;    // current room
+        int max = 2;    // largest room
+        int volume = 0; // largest room volume
 
-        for (int x = 0; x < sizeX; x++){
-            for (int y = 0; y < sizeY; y++){
-                for (int z = 0; z < sizeZ; z++){
+        // fill rooms
+        for (int x = 0; x < size; x++){
+            for (int y = 0; y < size; y++){
+                for (int z = 0; z < size; z++){
                     if (map[x, y, z] == 0){
                         int v = FloodFill(x, y, z, cur);
-
                         if (v > volume){
                             volume = v;
                             max = cur;
                         }
+
                         cur++;
                     }
                 }
             }
         }
 
-        for (int x = 0; x < sizeX; x++){
-            for (int y = 0; y < sizeY; y++){
-                for (int z = 0; z < sizeZ; z++){
+        // removes all but largest room
+        for (int x = 0; x < size; x++){
+            for (int y = 0; y < size; y++){
+                for (int z = 0; z < size; z++){
                     if (map[x, y, z] != 1 && map[x, y, z] != max){
                         map[x, y, z] = 1;
                     }
@@ -189,36 +123,35 @@ public class CaveGenerator : MonoBehaviour{
             }
         }
 
-        // Wait for both methods to finish
-        yield return StartCoroutine(BuildMap());
+        // logs the volume of the final cave
+        Debug.Log(volume);
+
+        BuildMap();
     }
 
-    private IEnumerator BuildMap(){
+    private void BuildMap(){
+        if (map == null){
+            return;
+        }
+
         GameObject chunks = new GameObject("Chunks");   // chunk parent
+
         Transform chunksTransform = chunks.transform;
-        
+
         chunks.transform.parent = gameObject.transform;
 
         // loops for chunk count
-        for (int cx = 0; cx < (sizeX / 8); cx++){
-            for (int cy = 0; cy < sizeY / 8; cy++){
-                for (int cz = 0; cz < sizeZ / 8; cz++){
+        for (int cx = 0; cx < size / 8; cx++){
+            for (int cy = 0; cy < size / 8; cy++){
+                for (int cz = 0; cz < size / 8; cz++){
                     GameObject chunk = new GameObject("Chunk " + cx + "." + cy + "." + cz); // chunk child
-                    chunk.transform.parent = chunks.transform;
 
-                    if (cy == 0 || cy == sizeY / 8 - 1 || cz == 0 || cz == sizeZ / 8 - 1){
-                        chunk.tag = "Boundary";
-                    }
-                    else{
-                        chunk.tag = "Rock";
-                    }
+                    chunk.transform.parent = chunks.transform;
 
                     // adds required components
                     chunk.AddComponent<MeshFilter>();
                     chunk.AddComponent<MeshRenderer>();
-                    MeshCollider chunkCollider = chunk.AddComponent<MeshCollider>();
-                    chunkCollider.convex = true;
-                    chunkCollider.isTrigger = true;
+                    chunk.AddComponent<MeshCollider>();
 
                     Mesh mesh = new Mesh();
 
@@ -253,7 +186,7 @@ public class CaveGenerator : MonoBehaviour{
                                         }
                                     }
 
-                                    if (x + 1 < sizeX){
+                                    if (x + 1 < size){
                                         if (map[x + 1, y, z] == 0){
                                             vertices.Add(new Vector3(x + 1, y, z + 1));     // 0
                                             vertices.Add(new Vector3(x + 1, y + 1, z + 1)); // 1
@@ -292,7 +225,7 @@ public class CaveGenerator : MonoBehaviour{
                                         }
                                     }
 
-                                    if (y + 1 < sizeY){
+                                    if (y + 1 < size){
                                         if (map[x, y + 1, z] == 0){
                                             vertices.Add(new Vector3(x, y + 1, z));         // 0
                                             vertices.Add(new Vector3(x, y + 1, z + 1));     // 1
@@ -312,7 +245,7 @@ public class CaveGenerator : MonoBehaviour{
                                     }
 
                                     // checks if z face is drawn
-                                    if (z + 1 < sizeZ){
+                                    if (z + 1 < size){
                                         if (map[x, y, z + 1] == 0){
                                             vertices.Add(new Vector3(x, y + 1, z + 1));     // 0
                                             vertices.Add(new Vector3(x, y, z + 1));         // 1
@@ -353,7 +286,9 @@ public class CaveGenerator : MonoBehaviour{
                             }
                         }
                     }
+
                     // finalizes mesh
+
                     mesh.Clear();
 
                     mesh.SetVertices(vertices);
@@ -366,30 +301,11 @@ public class CaveGenerator : MonoBehaviour{
                     chunk.GetComponent<Renderer>().material = mat;
                     chunk.GetComponent<MeshCollider>().sharedMesh = mesh;
                 }
-                if(counter != 1){
-                    yield return null;
-                }
             }
         }
-        chunksTransform.rotation = Quaternion.Euler(0, 90, 0);
-        
-        chunksTransform.localScale = new Vector3(4, 2, 2);
+        chunksTransform.localScale = new Vector3(2, 2, 2);
 
-        chunksTransform.position = new Vector3(posX, posY, posZ);
-
-        chunksList.Add(chunks);
-    }
-
-    IEnumerator DeleteChunks(){
-        while(true){
-            List<GameObject> chunksDelete = chunksList.Where(obj => obj.transform.position.z < spawnPosition.position.z - 300).ToList();
-
-            foreach (GameObject obj in chunksDelete){
-                Destroy(obj);
-                chunksList.Remove(obj);
-            }
-            yield return null;
-        }
+        chunksTransform.position = new Vector3(-60f, -30f, -60);
     }
 
     private int FloodFill(int x, int y, int z, int fill){
@@ -402,7 +318,7 @@ public class CaveGenerator : MonoBehaviour{
 
         list.Add(new Vector3Int(x, y, z));
 
-        while(list.Count != 0){
+        while (list.Count != 0){
             Vector3Int node = list[list.Count - 1];
 
             list.RemoveAt(list.Count - 1);

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour {
     private float baseSpeed = 5f;
+
+    private float boosterSpeed = 100f;
     private float speedIncrease = 0.1f;
     private float currentSpeed;
 
@@ -28,7 +30,7 @@ public class PlayerMovement : MonoBehaviour {
 
     IEnumerator ActivateRocketBooster() {
         particleSystem.Play();
-        currentSpeed = 150;
+        currentSpeed = boosterSpeed;
         StartCoroutine(DisplayCountdown());
         StartCoroutine(boosterShake());
         yield return new WaitForSeconds(countdownTime);
