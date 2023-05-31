@@ -68,7 +68,7 @@ public class CaveGenerator : MonoBehaviour{
                 entranceTopLeftY = exitTopLeftY;
                 entranceTopLeftZ = exitTopLeftZ;
 
-                posZ += 250;
+                posZ += 255;
                 
                 //Wait for ship to fly past spawn zone
                 if(counter == 1){

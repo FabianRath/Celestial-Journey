@@ -8,8 +8,8 @@ public class OfferSpawner : MonoBehaviour{
     
     public GameObject offer;
     private ShopItem[] shopItems = {
-        new ShopItem("Shield", 1, "shield", "A shield allows you to hit a pillar and survive, you can only carry one per run. When the spaceship collides with a pillar you will have 5 seconds of immunity for collisions with any pillars."),
-        new ShopItem("Booster", 1, "booster", "A booster will allow you to skip the first 500 meters of distance. This is useful for coin collection as the number of coins you will receive when flying through a ring is dependent on the distance you have travelled."),
+        new ShopItem("Shield", 2000, "shield", "A shield allows you to hit a pillar and survive, you can only carry one per run. When the spaceship collides with a pillar you will have 5 seconds of immunity for collisions with any pillars."),
+        new ShopItem("Booster", 1000, "booster", "A booster will allow you to skip the first 500 meters of distance. This is useful for coin collection as the number of coins you will receive when flying through a ring is dependent on the distance you have travelled."),
         new ShopItem("Light", 100, "lighting", "Work in Progress")};
     private List<Button> itemButtonList = new List<Button>();
     private bool loaded = false;

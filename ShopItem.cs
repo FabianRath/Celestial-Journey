@@ -2,8 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ShopItem
-{
+public class ShopItem{
     private string itemName;
     private int itemPrice;
     private string itemImageName;
