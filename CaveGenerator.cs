@@ -1,8 +1,8 @@
-
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
+using System.Threading;
 
 public class CaveGenerator : MonoBehaviour{
     public Transform spawnPosition; 
@@ -40,6 +40,11 @@ public class CaveGenerator : MonoBehaviour{
     private int exitTopLeftZ;
 
     private int counter = 1;
+
+    List<Vector3> vertices = new List<Vector3>();   // stores chunk vertices
+    List<int> triangles = new List<int>();          // stores chunk faces
+
+    private int newVolume;
 
     private void Awake(){
         sizeX = mapSizeX * 8;
@@ -85,7 +90,6 @@ public class CaveGenerator : MonoBehaviour{
    private IEnumerator GenerateMap(){
         map = new int[sizeX, sizeY, sizeZ];
 
-
         int[,] entranceExit = generateEntranceExit();
 
         for (int y = 0; y < sizeY/4; y++){
@@ -99,8 +103,7 @@ public class CaveGenerator : MonoBehaviour{
         for (int x = 0; x < sizeX; x++){
             for (int y = 0; y < sizeY; y++){
                 for (int z = 0; z < sizeZ; z++){
-                    if (map[x, y, z] == 0) //keeping entrance and exit holes open
-                    {
+                    if (map[x, y, z] == 0){ //keeping entrance and exit holes open
                         if (x == 0 || x == sizeX - 1 || y == 0 || y == sizeY - 1 || z == 0 || z == sizeZ - 1){
                             map[x, y, z] = 1; // Edges to solid
                         }
@@ -126,7 +129,6 @@ public class CaveGenerator : MonoBehaviour{
                 for (int y = 1; y < sizeY - 1; y++){
                     for (int z = 1; z < sizeZ - 1; z++){
                         int count = 0;
-
                         for (int xn = -1; xn < 2; xn++){
                             for (int yn = -1; yn < 2; yn++){
                                 for (int zn = -1; zn < 2; zn++){
@@ -139,9 +141,11 @@ public class CaveGenerator : MonoBehaviour{
                                 }
                             }
                         }
-
                         filterMap[x, y, z] = count > 15 ? 1 : 0;
                     }
+                }
+                if(counter != 1 && x % 5 == 0){
+                    yield return null;
                 }
             }
 
@@ -151,9 +155,9 @@ public class CaveGenerator : MonoBehaviour{
                         map[x, y, z] = filterMap[x, y, z];
                     }
                 }
-            }
-            if(counter != 1){
+                if(counter != 1 && x % 10 == 0){
                     yield return null;
+                }
             }
         }
 
@@ -165,15 +169,17 @@ public class CaveGenerator : MonoBehaviour{
             for (int y = 0; y < sizeY; y++){
                 for (int z = 0; z < sizeZ; z++){
                     if (map[x, y, z] == 0){
-                        int v = FloodFill(x, y, z, cur);
-
-                        if (v > volume){
-                            volume = v;
+                        StartCoroutine(FloodFill(x, y, z, cur));
+                        if (newVolume > volume){
+                            volume = newVolume;
                             max = cur;
                         }
                         cur++;
                     }
                 }
+            }
+            if(counter != 1 && x % 10 == 0){
+                yield return null;
             }
         }
 
@@ -187,6 +193,9 @@ public class CaveGenerator : MonoBehaviour{
                         map[x, y, z] = 0;
                     }
                 }
+            }
+            if(counter != 1 && x % 10 == 0){
+                yield return null;
             }
         }
 
@@ -207,6 +216,7 @@ public class CaveGenerator : MonoBehaviour{
                     GameObject chunk = new GameObject("Chunk " + cx + "." + cy + "." + cz); // chunk child
                     chunk.transform.parent = chunks.transform;
 
+                    // Applying tags for later collision detection
                     if (cy == 0 || cy == sizeY / 8 - 1 || cz == 0 || cz == sizeZ / 8 - 1){
                         chunk.tag = "Boundary";
                     }
@@ -223,8 +233,8 @@ public class CaveGenerator : MonoBehaviour{
 
                     Mesh mesh = new Mesh();
 
-                    List<Vector3> vertices = new List<Vector3>();   // stores chunk vertices
-                    List<int> triangles = new List<int>();          // stores chunk faces
+                    vertices.Clear();
+                    triangles.Clear();
 
                     int i = 0;  // last vertice added
 
@@ -367,9 +377,6 @@ public class CaveGenerator : MonoBehaviour{
                     chunk.GetComponent<Renderer>().material = mat;
                     chunk.GetComponent<MeshCollider>().sharedMesh = mesh;
                 }
-                if(counter != 1){
-                    yield return null;
-                }
             }
         }
         chunksTransform.rotation = Quaternion.Euler(0, 90, 0);
@@ -379,10 +386,12 @@ public class CaveGenerator : MonoBehaviour{
         chunksTransform.position = new Vector3(posX, posY, posZ);
 
         chunksList.Add(chunks);
+        yield return null;
     }
 
     IEnumerator DeleteChunks(){
         while(true){
+            // Delete chunks only when they are 300 behind the spaceship
             List<GameObject> chunksDelete = chunksList.Where(obj => obj.transform.position.z < spawnPosition.position.z - 300).ToList();
 
             foreach (GameObject obj in chunksDelete){
@@ -393,7 +402,7 @@ public class CaveGenerator : MonoBehaviour{
         }
     }
 
-    private int FloodFill(int x, int y, int z, int fill){
+    IEnumerator FloodFill(int x, int y, int z, int fill){
         // volume of room
         int volume = 1;
 
@@ -420,7 +429,6 @@ public class CaveGenerator : MonoBehaviour{
                         if (Mathf.Abs(nx) + Mathf.Abs(ny) + Mathf.Abs(nz) != 1){
                             continue;
                         }
-
                         if (map[a + nx, b + ny, c + nz] == 0){
                             list.Add(new Vector3Int(a + nx, b + ny, c + nz));
                             volume++;
@@ -431,7 +439,10 @@ public class CaveGenerator : MonoBehaviour{
         }
 
         // returns the volume of the room filled
-        return volume;
+        newVolume = volume;
+        if(counter != 1){
+            yield return null;
+        }
     }
 
     private int[,] generateEntranceExit(){
