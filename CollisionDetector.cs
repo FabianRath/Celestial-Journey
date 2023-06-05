@@ -87,6 +87,8 @@ public class CollisionDetector : MonoBehaviour
         spaceshipRigidbody.isKinematic = true;
         spaceship = GameObject.Find("Transport Shuttle_fbx");
         spaceship.transform.localPosition = new Vector3(0f, -2.33f, -1.817f);
+        GameObject canvas = GameObject.Find("CanvasDisplay");
+        canvas.transform.localPosition = new Vector3(0f, -0.4157f, 0.8215f);
         StartCoroutine(playShieldAnimation());
 
         float timer = 5f;
