@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -40,10 +39,10 @@ public class PauseMenu : MonoBehaviour{
             enableOptions();
             disableStartMenu();
         }else if(buttonClicked == buttonMuteBGM){
-            BGM.instance.PauseMusic();
+            BGM.instance.startPauseMusic();
         }else if(buttonClicked == buttonExit){
-             disableOptions();
-             enableStartMenu();
+            disableOptions();
+            enableStartMenu();
         }else if(buttonClicked == buttonResume){
             Time.timeScale = 1;
             canvas.gameObject.SetActive(false);

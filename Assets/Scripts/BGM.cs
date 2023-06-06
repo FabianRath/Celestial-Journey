@@ -8,6 +8,7 @@ public class BGM : MonoBehaviour{
     private AudioSource audioSource;
 
     private void Awake(){
+        audioSource = GetComponent<AudioSource>();
         if (instance != null){
             Destroy(gameObject);
         }else{
@@ -16,15 +17,13 @@ public class BGM : MonoBehaviour{
         }
     }
 
-    private void Start(){
-        audioSource = GetComponent<AudioSource>();
-    }
-
-    public void PauseMusic(){
+    public void startPauseMusic(){
         if (audioSource.isPlaying){
             audioSource.Pause();
+            PlayerPrefs.SetInt("BGMMuted", 1);
         }else{
             audioSource.UnPause();
+            PlayerPrefs.SetInt("BGMMuted", 0);
         }
     }
 }

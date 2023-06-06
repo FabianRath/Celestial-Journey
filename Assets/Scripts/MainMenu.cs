@@ -30,6 +30,9 @@ public class MainMenu : MonoBehaviour{
         cameras[1].gameObject.SetActive(false);
         cameras[0].gameObject.SetActive(true);
         playerModel.gameObject.SetActive(false);
+        if(PlayerPrefs.GetInt("BGMMuted") == 1){
+            bgmOnOff();
+        }
     }
 
     void FixedUpdate(){
@@ -63,15 +66,11 @@ public class MainMenu : MonoBehaviour{
             disableSettings();
             disableShop();
         }else if(buttonClicked == buttonGameEnd){
-            #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-            #else
-            Application.Quit();
-            #endif
+            exitGame();
         }else if(buttonClicked == buttonResetGameProgress){
             gameReset();
         }else if(buttonClicked == buttonMuteBGM){
-            BGM.instance.PauseMusic();
+            bgmOnOff();
         }else if(buttonClicked == buttonInspectShip){
             disableMainMenu();
             enableInspectShip();
@@ -134,8 +133,16 @@ public class MainMenu : MonoBehaviour{
         scrollViewShop.gameObject.SetActive(false);
     }
 
+    void exitGame(){
+        #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+        #else
+        Application.Quit();
+        #endif
+    }
+
     void gameReset(){
-        PlayerPrefs.SetInt("totalCoins", 1000);
+        PlayerPrefs.SetInt("totalCoins", 0);
     }
 
     void LoadGameScene(){
@@ -152,5 +159,9 @@ public class MainMenu : MonoBehaviour{
         cameras[1].gameObject.SetActive(false);
         cameras[0].gameObject.SetActive(true);
         playerModel.gameObject.SetActive(false);
+    }
+
+    void bgmOnOff(){
+        BGM.instance.startPauseMusic();
     }
 }
