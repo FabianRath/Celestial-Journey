@@ -4,12 +4,13 @@ using UnityEngine.SceneManagement;
 
 public class Deathscreen : MonoBehaviour
 {
-    public Button button1, button2;
+    public Button buttonMainMenu, buttonContinue;
     public Text text1, text2, text3, text4;
 
     void Start(){
-        button1.onClick.AddListener(() => TaskOnClick(button1));
-        button2.onClick.AddListener(() => TaskOnClick(button2));
+        Cursor.visible = true;
+        buttonMainMenu.onClick.AddListener(() => TaskOnClick(buttonMainMenu));
+        buttonContinue.onClick.AddListener(() => TaskOnClick(buttonContinue));
 
         int distance = PlayerPrefs.GetInt("distance");
         text1.text = "Distance: " + distance.ToString();
@@ -29,10 +30,11 @@ public class Deathscreen : MonoBehaviour
     }
 
     void TaskOnClick(Button buttonClicked){
-        if(buttonClicked == button1){
+        if(buttonClicked == buttonMainMenu){
             SceneManager.LoadScene("mainMenu");
         }
-        else if(buttonClicked == button2){
+        else if(buttonClicked == buttonContinue){
+            Cursor.visible = false;
             PlayerPrefs.SetInt("distance", 0);
             PlayerPrefs.SetInt("tempCoins", 0);            
             SceneManager.LoadScene("gameRun");

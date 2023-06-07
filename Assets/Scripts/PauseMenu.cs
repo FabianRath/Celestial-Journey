@@ -22,6 +22,7 @@ public class PauseMenu : MonoBehaviour{
     void FixedUpdate(){
         if (Input.GetKeyDown(KeyCode.Escape)) {
             if (canvas.gameObject.activeSelf == false){
+                Cursor.visible = true;
                 enableStartMenu();
                 Time.timeScale = 0;
             } else {
@@ -44,6 +45,7 @@ public class PauseMenu : MonoBehaviour{
             disableOptions();
             enableStartMenu();
         }else if(buttonClicked == buttonResume){
+            Cursor.visible = false;
             Time.timeScale = 1;
             canvas.gameObject.SetActive(false);
         }

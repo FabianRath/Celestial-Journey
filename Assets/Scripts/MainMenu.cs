@@ -14,6 +14,7 @@ public class MainMenu : MonoBehaviour{
     private bool inspectShip;
 
     void Start(){
+        Cursor.visible = true;
         buttonNewRun.onClick.AddListener(() => TaskOnClick(buttonNewRun));
         buttonShop.onClick.AddListener(() => TaskOnClick(buttonShop));
         buttonOptions.onClick.AddListener(() => TaskOnClick(buttonOptions));
@@ -42,6 +43,7 @@ public class MainMenu : MonoBehaviour{
         textLight.text = "Light: " + (PlayerPrefs.GetInt("Light") == 1 ? "Activated":"Deactivated");
         if(inspectShip){
             if (Input.GetKey(KeyCode.Escape)) {
+                Cursor.visible = true;
                 enableMainMenu();
                 disableInspectShip();
                 PlayerPrefs.SetInt("inspectShip", 0);
@@ -72,6 +74,7 @@ public class MainMenu : MonoBehaviour{
         }else if(buttonClicked == buttonMuteBGM){
             bgmOnOff();
         }else if(buttonClicked == buttonInspectShip){
+            Cursor.visible = false;
             disableMainMenu();
             enableInspectShip();
             inspectShip = true;
@@ -146,6 +149,7 @@ public class MainMenu : MonoBehaviour{
     }
 
     void LoadGameScene(){
+        Cursor.visible = false;
         SceneManager.LoadScene("gameRun");
     }
 
