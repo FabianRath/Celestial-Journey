@@ -5,16 +5,18 @@ using TMPro;
 
 public class PauseMenu : MonoBehaviour{
     public Canvas canvas;
-    public Button buttonMainMenu, buttonOptions, buttonMuteBGM, buttonExit, buttonResume;
+    public Button buttonMainMenu, buttonOptions, buttonMuteBGM, buttonExit, buttonResume, buttonSwitchPOV;
     void Start(){
         buttonMainMenu.onClick.AddListener(() => TaskOnClick(buttonMainMenu));
         buttonOptions.onClick.AddListener(() => TaskOnClick(buttonOptions));
         buttonResume.onClick.AddListener(() => TaskOnClick(buttonResume));
         buttonMuteBGM.onClick.AddListener(() => TaskOnClick(buttonMuteBGM));
         buttonExit.onClick.AddListener(() => TaskOnClick(buttonExit));
+        buttonSwitchPOV.onClick.AddListener(() => TaskOnClick(buttonSwitchPOV));
         canvas.gameObject.SetActive(false);
         buttonMuteBGM.gameObject.SetActive(false);
         buttonExit.gameObject.SetActive(false);
+        buttonSwitchPOV.gameObject.SetActive(false);
         Time.timeScale = 1;
     }
 
@@ -48,6 +50,8 @@ public class PauseMenu : MonoBehaviour{
             Cursor.visible = false;
             Time.timeScale = 1;
             canvas.gameObject.SetActive(false);
+        }else if(buttonClicked == buttonSwitchPOV){
+            switchPOV();
         }
     }
 
@@ -66,14 +70,24 @@ public class PauseMenu : MonoBehaviour{
     void enableOptions(){
         buttonMuteBGM.gameObject.SetActive(true);
         buttonExit.gameObject.SetActive(true);
+        buttonSwitchPOV.gameObject.SetActive(true);
     }
 
     void disableOptions(){
         buttonMuteBGM.gameObject.SetActive(false);
         buttonExit.gameObject.SetActive(false);
+        buttonSwitchPOV.gameObject.SetActive(false);
     }
 
     void LoadGameScene(){
         SceneManager.LoadSceneAsync("mainMenu");
+    }
+
+    void switchPOV(){
+        if(PlayerPrefs.GetInt("firstPerson") == 0){
+            PlayerPrefs.SetInt("firstPerson", 1);
+        }else if(PlayerPrefs.GetInt("firstPerson") == 1){
+            PlayerPrefs.SetInt("firstPerson", 0);
+        }
     }
 }

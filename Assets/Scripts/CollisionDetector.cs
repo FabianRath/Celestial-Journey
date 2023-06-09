@@ -8,16 +8,18 @@ public class CollisionDetector : MonoBehaviour
     private AudioSource audioSource;
     public AudioClip crashSound;
     public AudioClip ringSound;
-    private GameObject spaceship;
 
     private bool boosterActive = false;
     private bool shieldActive = false;
     private bool shieldRunning = false;
 
+    public Camera firstPersonCamera;
+    public Camera thirdPersonCamera;
+    public Canvas canvas;
+
     private void Start(){
         audioSource = GetComponent<AudioSource>();
         spaceshipRigidbody = GetComponentInChildren<Rigidbody>();
-        spaceship = GameObject.Find("Transport Shuttle_fbx");
 
         if(PlayerPrefs.GetInt("Booster") != 0){
             spaceshipRigidbody.isKinematic = true;
@@ -41,9 +43,8 @@ public class CollisionDetector : MonoBehaviour
         switch (other.gameObject.tag){
             case "Ring":
                 StartCoroutine(playRingSound());
-                GameObject spaceship = GameObject.Find("Transport Shuttle_fbx");
                 int tempCoins = PlayerPrefs.GetInt("tempCoins");
-                tempCoins = tempCoins + Mathf.RoundToInt(100f + 0.1f * spaceship.transform.position.z);
+                tempCoins = tempCoins + Mathf.RoundToInt(100f + 0.1f * transform.position.z);
                 PlayerPrefs.SetInt("tempCoins", tempCoins);
                 break;
             case "Rock":
@@ -85,17 +86,14 @@ public class CollisionDetector : MonoBehaviour
 
     private IEnumerator surviveCrashWithRockShield(bool booster){
         spaceshipRigidbody.isKinematic = true;
-        spaceship = GameObject.Find("Transport Shuttle_fbx");
-        spaceship.transform.localPosition = new Vector3(0f, -2.33f, -1.817f);
-        GameObject canvas = GameObject.Find("CanvasDisplay");
-        canvas.transform.localPosition = new Vector3(0f, -0.4157f, 0.8215f);
         StartCoroutine(playShieldAnimation());
 
-        float timer = 5f;
+        float timer = 50f;
         while (timer > 0f){
-            yield return new WaitForSeconds(1f);
             timer--;
-            PlayerPrefs.SetInt("ShieldCountdown", Mathf.RoundToInt(timer));
+            PlayerPrefs.SetInt("ShieldCountdown", Mathf.RoundToInt(timer/10));
+            StartCoroutine(transformToPosition());
+            yield return new WaitForSeconds(0.1f);
         }
         shieldRunning = false;
         spaceshipRigidbody.isKinematic = false;
@@ -110,28 +108,44 @@ public class CollisionDetector : MonoBehaviour
     }
 
     IEnumerator playShieldAnimation(){
-        GameObject mainCamera = GameObject.Find("Main Camera");
+        Camera camera;
+        if(PlayerPrefs.GetInt("firstPerson") == 0){
+            camera = thirdPersonCamera;
+        }else{
+            camera = firstPersonCamera;
+        }
         float duration = 0.5f; // duration of the animation in seconds
         float magnitude = 0.2f; // magnitude of the shake
-        Vector3 startPosition = mainCamera.transform.position;
+        Vector3 startPosition = camera.transform.position;
 
         float timeElapsed = 0.0f;
         while (timeElapsed < duration) {
-            startPosition = mainCamera.transform.position;
+            startPosition = camera.transform.position;
             float x = startPosition.x + Random.Range(-magnitude, magnitude);
             float y = startPosition.y + Random.Range(-magnitude, magnitude);
             float z = startPosition.z;
 
-            mainCamera.transform.position = new Vector3(x, y, z);
+            camera.transform.position = new Vector3(x, y, z);
 
             timeElapsed += Time.deltaTime;
             yield return null;
         }
 
-        mainCamera.transform.position = startPosition;
+        camera.transform.position = startPosition;
     }
 
     private void loadDeathscreen(){
         SceneManager.LoadScene("deathScreen");
+    }
+
+    IEnumerator transformToPosition(){
+        transform.localPosition = new Vector3(-14.05191f, 3.116171f, -0.4671082f);
+        if(PlayerPrefs.GetInt("firstPerson") == 1){
+            canvas.transform.localPosition = new Vector3(-0.001f, -0.418f, 0.803f);
+            firstPersonCamera.transform.localPosition = new Vector3(3.634f, 2.33f, 0f);
+        }else if(PlayerPrefs.GetInt("firstPerson") == 0){
+            thirdPersonCamera.transform.localPosition = new Vector3(-20.366f, 5.83f, 0f);
+        }
+        yield return null;
     }
 }

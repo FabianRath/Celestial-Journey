@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using TMPro;
 
 public class MainMenu : MonoBehaviour{
-    public Button buttonNewRun, buttonShop, buttonOptions, buttonBack, buttonResetGameProgress, buttonGameEnd, buttonInspectShip, buttonMuteBGM;
+    public Button buttonNewRun, buttonShop, buttonOptions, buttonBack, buttonResetGameProgress, buttonGameEnd, buttonInspectShip, buttonMuteBGM, buttonSwitchPOV;
     public TextMeshProUGUI totalCoinsText, textShield, textBooster, textLight;
     public CameraAnimationPlayer animPlayer;
     public ScrollRect scrollViewShop;
@@ -23,9 +23,11 @@ public class MainMenu : MonoBehaviour{
         buttonResetGameProgress.onClick.AddListener(() => TaskOnClick(buttonResetGameProgress));
         buttonMuteBGM.onClick.AddListener(() => TaskOnClick(buttonMuteBGM));
         buttonInspectShip.onClick.AddListener(() => TaskOnClick(buttonInspectShip));
+        buttonSwitchPOV.onClick.AddListener(() => TaskOnClick(buttonSwitchPOV));
         buttonBack.gameObject.SetActive(false);
         buttonResetGameProgress.gameObject.SetActive(false);
         buttonMuteBGM.gameObject.SetActive(false);
+        buttonSwitchPOV.gameObject.SetActive(false);
         scrollViewShop.gameObject.SetActive(false);
         PlayerPrefs.SetInt("inspectShip", 0);
         cameras[1].gameObject.SetActive(false);
@@ -79,6 +81,8 @@ public class MainMenu : MonoBehaviour{
             enableInspectShip();
             inspectShip = true;
             PlayerPrefs.SetInt("inspectShip", 1);
+        }else if(buttonClicked == buttonSwitchPOV){
+            switchPOV();
         }
     }
 
@@ -116,12 +120,14 @@ public class MainMenu : MonoBehaviour{
         buttonResetGameProgress.gameObject.SetActive(true);
         buttonMuteBGM.gameObject.SetActive(true);
         buttonBack.gameObject.SetActive(true);
+        buttonSwitchPOV.gameObject.SetActive(true);
     }
 
     void disableSettings(){
         buttonResetGameProgress.gameObject.SetActive(false);
         buttonMuteBGM.gameObject.SetActive(false);
         buttonBack.gameObject.SetActive(false);
+        buttonSwitchPOV.gameObject.SetActive(false);
     }
 
     void enableShop(){
@@ -167,5 +173,13 @@ public class MainMenu : MonoBehaviour{
 
     void bgmOnOff(){
         BGM.instance.startPauseMusic();
+    }
+
+    void switchPOV(){
+        if(PlayerPrefs.GetInt("firstPerson") == 0){
+            PlayerPrefs.SetInt("firstPerson", 1);
+        }else if(PlayerPrefs.GetInt("firstPerson") == 1){
+            PlayerPrefs.SetInt("firstPerson", 0);
+        }
     }
 }
