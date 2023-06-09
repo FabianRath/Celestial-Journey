@@ -6,8 +6,8 @@ public class DistanceCoinsDisplay : MonoBehaviour{
     public Text distanceTextfield, coinTextfield, boosterTextfield, shieldTextfield;
 
     private void Start(){
-        int initalShieldDisplay = PlayerPrefs.GetInt("Shield") == 1 ? 5 : 0;
-        PlayerPrefs.SetInt("ShieldCountdown", initalShieldDisplay);
+        int initialShieldDisplay = PlayerPrefs.GetInt("Shield") == 1 ? 5 : 0;
+        PlayerPrefs.SetInt("ShieldCountdown", initialShieldDisplay);
     }
 
     void FixedUpdate(){
