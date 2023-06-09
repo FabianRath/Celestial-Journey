@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class DistanceCoinsDisplay : MonoBehaviour{
+    public GameObject ship;
     public Text distanceTextfield, coinTextfield, boosterTextfield, shieldTextfield;
 
     private void Start(){
@@ -10,7 +11,7 @@ public class DistanceCoinsDisplay : MonoBehaviour{
     }
 
     void FixedUpdate(){
-        float z = transform.position.z;
+        float z = ship.transform.position.z;
         int roundedZ = Mathf.RoundToInt(z);
 
         distanceTextfield.text = "Distance: " + roundedZ.ToString();
