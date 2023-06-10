@@ -144,7 +144,7 @@ public class CaveGenerator : MonoBehaviour{
                         filterMap[x, y, z] = count > 15 ? 1 : 0;
                     }
                 }
-                if(counter != 1 && x % 5 == 0){
+                if(counter != 1 && x % 5 == 0 && PlayerPrefs.GetInt("Booster") != 0){
                     yield return null;
                 }
             }
