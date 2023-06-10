@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
@@ -25,11 +26,21 @@ public class CollisionDetector : MonoBehaviour
             spaceshipRigidbody.isKinematic = true;
             boosterSwitch();
             PlayerPrefs.SetInt("Booster", 0);
-            Invoke("boosterSwitch", 10f);
+            StartCoroutine(boosterTransform());
+            Invoke("boosterSwitch",10);
         }
         if(PlayerPrefs.GetInt("Shield") != 0){
             PlayerPrefs.SetInt("Shield", 0);
             shieldActive = true;
+        }
+    }
+
+    IEnumerator boosterTransform(){
+        float timer = 100f;
+        while (timer > 0f){
+            timer--;
+            StartCoroutine(transformToPosition());
+            yield return new WaitForSeconds(0.1f);
         }
     }
 
@@ -48,8 +59,10 @@ public class CollisionDetector : MonoBehaviour
                 PlayerPrefs.SetInt("tempCoins", tempCoins);
                 break;
             case "Rock":
+                spaceshipRigidbody.isKinematic = true;
                 audioSource.PlayOneShot(crashSound, 1f);
                 if(boosterActive){
+                    StartCoroutine(transformToPosition());
                     StartCoroutine(playShieldAnimation());
                 }
                 else{
@@ -141,7 +154,7 @@ public class CollisionDetector : MonoBehaviour
     IEnumerator transformToPosition(){
         transform.localPosition = new Vector3(-14.05191f, 3.116171f, -0.4671082f);
         if(PlayerPrefs.GetInt("firstPerson") == 1){
-            canvas.transform.localPosition = new Vector3(-0.001f, -0.418f, 0.803f);
+            canvas.transform.localPosition = new Vector3(-14.05241f, 4.07217f, 2.152892f);
             firstPersonCamera.transform.localPosition = new Vector3(3.634f, 2.33f, 0f);
         }else if(PlayerPrefs.GetInt("firstPerson") == 0){
             thirdPersonCamera.transform.localPosition = new Vector3(-20.366f, 5.83f, 0f);
